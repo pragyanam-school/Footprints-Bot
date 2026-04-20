@@ -159,3 +159,4 @@ Fee tiers (A=highest, G=lowest):
 - **Rate limiting**: Add rate limiting per phone number to prevent abuse
 - **Logging**: Add proper logging (Winston or Pino) to track conversations
 - **Human handoff**: When Payal says "let me check with my senior", trigger a notification to your sales team (Slack/email)
+# Footprints-Bot
