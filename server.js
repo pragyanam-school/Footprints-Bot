@@ -47,8 +47,9 @@ const CONCERN_MENU = `What would you most like to know about Footprints first? �
 // Server-generated concern acknowledgments — {childName} and {parentName} substituted at runtime
 const CONCERN_ACK = {
   curriculum:
-    `Great choice — curriculum is what makes Footprints genuinely different. 💚<MSG_BREAK>` +
-    `We follow HighScope — one of the world's most researched early childhood programs. The core idea is Active Learning: children learn by doing, exploring, and making choices — not sitting and listening. Every day includes "Choice Time" where {childName} picks what to work on, building independence and thinking skills from a young age. No rote learning, no worksheets.<MSG_BREAK>` +
+    `Great choice — curriculum is the single most important thing to get right at this age. 💚<MSG_BREAK>` +
+    `Here's why: 90% of a child's brain develops before age 6. That's the window. Footprints uses HighScope — a US-based, research-proven program used by leading early childhood centres worldwide. The idea is active learning: {childName} explores, experiments, and figures things out independently — not sitting and listening to a teacher. Choice Time every day where {childName} picks what to work on. No rote learning, no worksheets.<MSG_BREAK>` +
+    `Here's a short video showing exactly how it works: https://www.youtube.com/watch?v=HIGHSCOPE_VIDEO_ID<MSG_BREAK>` +
     `Which city are you in, {parentName}?`,
 
   safety:
@@ -106,6 +107,9 @@ function getState(id) {
       _pendingNudge:        null,
       _concernMenuJustSent: false,   // true for one turn after concern menu fires
       _concernJustDetected: false,   // true for one turn after concern is answered
+      frustratedCount:      0,       // consecutive frustrated signals (2 → escalate)
+      lastIntent:           null,    // previous turn's intent for repeat detection
+      sameIntentCount:      0,       // consecutive turns with same intent, no progress
     };
   }
   return conversations[id];
@@ -231,7 +235,7 @@ PROGRAMS:
 Minimum ages: Full Day Care from 9 months | Pre-School from 1.5 yrs | After School from 4 yrs
 
 CURRICULUM — HighScope / Active Learning:
-Children learn by doing — not passive instruction. Choice Time daily (children pick what to work on → independence from age 1). Plan-do-review cycle builds thinking and reflection skills. No rote learning, no worksheets, no passive teaching. Say "HighScope" at most once per response; use "active learning" prominently.
+90% of a child's brain develops before age 6 — this is the single most important learning window. Most parents focus on college prep, but research shows early childhood curriculum matters most. Footprints uses HighScope — a US-based, globally research-proven early childhood program with decades of published results. Children learn by exploring, experimenting, and discovering on their own — not passive instruction. Choice Time daily (children pick what to work on → independence from age 1). Plan-do-review cycle builds thinking and reflection. No rote learning, no worksheets, no passive teaching. Say "HighScope" at most once per response; use "active learning" prominently.
 
 SAFETY & SECURITY:
 Live CCTV + AI monitoring — parents watch LIVE from their phone anytime, all rooms (not just recordings — a full live feed). OTP visitor entry — no exceptions. Biometric access on all entry and exit points. All-women staff, background-verified, regular health checks. Child-safe design: cushioned walls, soft flooring, covered corners, door guards. Real-time mobile updates on meals, sleep, activities throughout the day.
@@ -283,7 +287,13 @@ Rules:
 - concernMenuAnswer: if intent is concern_menu_answer, return the matching label text exactly as one of: "Curriculum & Active Learning", "Safety & Security", "Food & Nutrition", "Live CCTV & AI Monitoring". Else null.
 - isNegativeResponse: true if refusing/skipping ("i dont want to tell", "skip", "not now", "no idea").
 - extractedAreaFromPhrase: if message contains "how about X"/"what about X"/"near X"/"try X", extract X. Null otherwise.
-- isMetaQuestion: true if asking who/what the bot is ("who are you", "are you a bot", "where are you", "is this automated").`;
+- isMetaQuestion: true if asking who/what the bot is ("who are you", "are you a bot", "where are you", "is this automated").
+- isHumanRequest: true if parent wants to speak to a person ("talk to someone", "call me", "speak to agent", "human please", "connect me to staff").
+- isAbusive: true if message contains abusive, offensive, or threatening language directed at the bot or brand.
+- isFrustrated: true if clear negative sentiment without abuse ("useless", "not helpful", "wasting my time", "this is bad", "not working", "terrible").
+- isUrgent: true if parent signals strong time urgency ("joining this week", "starting Monday", "very urgent", "asap", "need immediately").
+- isCorporateInquiry: true if asking about multi-enrollment for a company ("corporate creche", "for our employees", "bulk enrollment", "company daycare").
+- hasMultipleChildren: true if parent mentions enrolling more than one child simultaneously.`;
 
 async function contextualAsk(message, need, state) {
   const parentRef = state.parentName ? ` ${state.parentName}` : '';
@@ -389,11 +399,40 @@ function notifyStuck(_state, reason) {
 async function triggerHumanTakeover(waId) {
   console.log(`🔴 HUMAN TAKEOVER — waId: ${waId}`);
   if (!WATI_SERVER_ID || !WATI_API_TOKEN) return;
-  // TODO: uncomment in production:
-  // await axios.post(
-  //   `https://live-server-${WATI_SERVER_ID}.wati.io/api/v1/conversations/${waId}/unassign`,
-  //   {}, { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
-  // );
+  await axios.post(
+    `https://live-server-${WATI_SERVER_ID}.wati.io/api/v1/conversations/${waId}/unassign`,
+    {}, { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
+  ).catch(err => console.error('Wati unassign error:', err.message));
+}
+
+// ─── WATI MESSAGE SENDING ─────────────────────────────────────────────────────
+const WATI_MSG_DELAY_MS = 1500;
+
+async function sendWatiMessage(waId, text) {
+  if (!WATI_SERVER_ID || !WATI_API_TOKEN) return;
+  await axios.post(
+    `https://live-server-${WATI_SERVER_ID}.wati.io/api/v1/sendSessionMessage/${waId}`,
+    { messageText: text },
+    { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
+  ).catch(err => console.error('Wati send error:', err.message));
+}
+
+async function sendWatiMessages(waId, result) {
+  if (!result.reply) return;
+  const parts = result.reply.split('<MSG_BREAK>').map(s => s.trim()).filter(Boolean);
+  for (let i = 0; i < parts.length; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, WATI_MSG_DELAY_MS));
+    await sendWatiMessage(waId, parts[i]);
+  }
+  if (result.concernMenuMessage) {
+    await new Promise(r => setTimeout(r, WATI_MSG_DELAY_MS));
+    await sendWatiMessage(waId, result.concernMenuMessage);
+    if (result.concernMenuOptions?.length) {
+      const optionText = result.concernMenuOptions.map(o => o.label).join('\n');
+      await new Promise(r => setTimeout(r, 600));
+      await sendWatiMessage(waId, optionText);
+    }
+  }
 }
 
 function crmUpdateLead(_state) {
@@ -454,7 +493,7 @@ async function processMessage(conversationId, waId, message) {
     console.log('📤 Already handed over to human — suppressing reply');
     return { reply: null };
   }
-  if (state.turnCount >= 20 && !state.visitBooked) {
+  if (state.turnCount >= 14 && !state.visitBooked) {
     console.log('🔴 Max turns reached');
     const reply = await escalate(state, waId, 'max turns reached');
     return { reply, humanTakeover: true };
@@ -490,6 +529,62 @@ async function processMessage(conversationId, waId, message) {
     return { reply, humanTakeover: true };
   }
 
+  if (ext.isHumanRequest) {
+    console.log('🔴 Parent requested human');
+    const reply = await escalate(state, waId, 'parent requested human');
+    return { reply, humanTakeover: true };
+  }
+
+  if (ext.isAbusive) {
+    console.log('🔴 Abusive message detected');
+    const reply = await escalate(state, waId, 'abusive message');
+    return { reply, humanTakeover: true };
+  }
+
+  if (ext.isFrustrated) {
+    state.frustratedCount++;
+    console.log(`🔁 frustratedCount: ${state.frustratedCount}`);
+    if (state.frustratedCount >= 2) {
+      console.log('🔴 Repeated frustration — escalating');
+      const reply = await escalate(state, waId, 'repeated frustration');
+      return { reply, humanTakeover: true };
+    }
+  }
+
+  if (ext.isUrgent) {
+    console.log('🔴 Urgency detected — escalating proactively');
+    const childName = state.childName || 'your child';
+    const reply = `I want to make sure ${childName} gets the right spot as quickly as possible! 😊<MSG_BREAK>Let me connect you with one of our senior admissions counsellors right away — they can fast-track everything for you. Someone from our team will be with you shortly!`;
+    state.humanTakeover = true;
+    notifyStuck(state, 'urgency');
+    await triggerHumanTakeover(waId);
+    return { reply, humanTakeover: true };
+  }
+
+  if (ext.isCorporateInquiry || ext.hasMultipleChildren) {
+    const reason = ext.isCorporateInquiry ? 'corporate inquiry' : 'multiple children';
+    console.log(`🔴 High-value signal: ${reason} — escalating`);
+    const reply = `That sounds wonderful! 😊<MSG_BREAK>For ${ext.isCorporateInquiry ? 'corporate and multi-enrollment enquiries' : 'enrolling multiple children'}, let me connect you directly with our senior admissions team — they'll be best placed to help you. Someone will be with you shortly!`;
+    state.humanTakeover = true;
+    notifyStuck(state, reason);
+    await triggerHumanTakeover(waId);
+    return { reply, humanTakeover: true };
+  }
+
+  // Repeated same intent with no state progress
+  if (ext.intent && ext.intent !== 'general' && ext.intent === state.lastIntent) {
+    state.sameIntentCount++;
+    console.log(`🔁 sameIntentCount (${ext.intent}): ${state.sameIntentCount}`);
+    if (state.sameIntentCount >= 3) {
+      console.log('🔴 Repeated same question — escalating');
+      const reply = await escalate(state, waId, 'repeated same question');
+      return { reply, humanTakeover: true };
+    }
+  } else {
+    state.sameIntentCount = 0;
+    state.lastIntent = ext.intent || null;
+  }
+
   if (!state.childName && ext.childName && !ext.isNegativeResponse) {
     state.childName = ext.childName;
     console.log(`✅ childName: ${state.childName}`);
@@ -503,6 +598,7 @@ async function processMessage(conversationId, waId, message) {
   if (!state.program && ext.program) {
     state.program = ext.program;
     console.log(`✅ program: ${state.program}`);
+    state.sameIntentCount = 0;
   }
 
   let cityJustDetected = false;
@@ -517,6 +613,7 @@ async function processMessage(conversationId, waId, message) {
       state.centersData = null;
       state.centersShown = false;
       cityJustDetected  = true;
+      state.sameIntentCount = 0;
       console.log(`✅ city changed: ${state.city} (area + centres reset)`);
     }
   }
@@ -527,6 +624,7 @@ async function processMessage(conversationId, waId, message) {
     if (newArea) {
       state.area = newArea;
       console.log(`✅ area: ${state.area}`);
+      state.sameIntentCount = 0; // progress made
     }
   }
 
@@ -707,7 +805,9 @@ app.post('/webhook/wati', (req, res) => {
   if (type !== 'text' || !text) return;
   const state = getState(waId);
   if (!state.parentName && senderName) state.parentName = senderName;
-  processWithTimeout(waId, waId, text).catch(console.error);
+  processWithTimeout(waId, waId, text)
+    .then(result => sendWatiMessages(waId, result))
+    .catch(console.error);
 });
 
 // Test UI
@@ -767,9 +867,23 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), conversations: Object.keys(conversations).length });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🌱 Footprints Priya running on http://localhost:${PORT}`);
-  console.log(`   Model:  ${MODEL}`);
-  console.log(`   Test:   http://localhost:${PORT}`);
-  console.log(`   Health: http://localhost:${PORT}/health\n`);
-});
+if (require.main === module) {
+  const { execSync } = require('child_process');
+  console.log('\n🧪 Running test suite before starting server...\n');
+  try {
+    execSync('npm test', { stdio: 'inherit', cwd: __dirname, timeout: 120_000 });
+  } catch {
+    console.error('\n❌ Tests failed — server will not start. Fix failing tests and try again.\n');
+    process.exit(1);
+  }
+  console.log('\n✅ All tests passed.\n');
+
+  app.listen(PORT, () => {
+    console.log(`\n🌱 Footprints Priya running on http://localhost:${PORT}`);
+    console.log(`   Model:  ${MODEL}`);
+    console.log(`   Test:   http://localhost:${PORT}`);
+    console.log(`   Health: http://localhost:${PORT}/health\n`);
+  });
+}
+
+module.exports = app;
