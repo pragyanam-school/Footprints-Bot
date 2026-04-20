@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footprints — Payal WhatsApp Tester</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;height:100vh;display:flex;flex-direction:column}
+  .app{display:flex;height:100vh;max-width:1200px;margin:0 auto;width:100%;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+  .sidebar{width:300px;min-width:300px;background:#fff;display:flex;flex-direction:column;border-right:1px solid #e0e0e0}
+  .sh{background:#075E54;color:white;padding:14px 16px}
+  .sh h2{font-size:15px;font-weight:600}
+  .sh p{font-size:11px;opacity:.8;margin-top:2px}
+  .sb{flex:1;padding:12px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  .sb label{font-size:11px;font-weight:600;color:#667;text-transform:uppercase;letter-spacing:.5px}
+  .sb textarea{flex:1;font-size:11.5px;line-height:1.6;padding:8px;border:1px solid #ddd;border-radius:8px;color:#555;resize:none;background:#fafafa;font-family:inherit;outline:none}
+  .pill{font-size:11px;padding:4px 10px;border-radius:6px;word-break:break-all}
+  .info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+  .ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+  .warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+  .sf{padding:10px 12px;border-top:1px solid #eee;display:flex;gap:8px}
+  .btn{font-size:12px;padding:7px 14px;border-radius:7px;border:1px solid #ddd;background:#fff;color:#333;cursor:pointer;font-family:inherit}
+  .btn:hover{background:#f5f5f5}
+  .btn-d{color:#dc2626;border-color:#fecaca}
+  .chat{flex:1;display:flex;flex-direction:column;background:#fff}
+  .ch{background:#075E54;padding:10px 16px;display:flex;align-items:center;gap:12px}
+  .av{width:38px;height:38px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white;flex-shrink:0}
+  .ch-info h3{color:white;font-size:15px;font-weight:600}
+  .ch-info p{color:#9de8c8;font-size:12px}
+  .msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;background:#ECE5DD}
+  .msg{max-width:78%;padding:8px 12px 6px;border-radius:10px;font-size:13.5px;line-height:1.55;word-wrap:break-word}
+  .msg.user{background:#DCF8C6;color:#111;align-self:flex-end;border-bottom-right-radius:2px}
+  .msg.bot{background:#fff;color:#111;align-self:flex-start;border-bottom-left-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+  .msg.sys{background:rgba(0,0,0,.07);color:#555;align-self:center;font-size:11px;padding:4px 12px;border-radius:8px;max-width:90%;text-align:center}
+  .msg.err{background:#fee2e2;color:#991b1b;align-self:stretch;font-size:12px;padding:8px 12px;border-radius:8px;border:1px solid #fecaca}
+  .mt{font-size:10.5px;color:#999;float:right;margin-left:8px;margin-top:2px}
+  .typing{display:flex;gap:4px;align-items:center;padding:2px 0}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#aaa;animation:bounce 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.15s}
+  .typing span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+  .ci{padding:8px 12px;background:#f0f2f5;display:flex;gap:8px;align-items:center;border-top:1px solid #e0e0e0}
+  .ci input{flex:1;font-size:14px;padding:10px 16px;border:none;border-radius:24px;background:#fff;color:#333;font-family:inherit;outline:none;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .sb-btn{width:42px;height:42px;border-radius:50%;background:#25D366;border:none;cursor:pointer;font-size:18px;color:white;flex-shrink:0}
+  .sb-btn:hover{background:#1ebe5b}
+  .sb-btn:disabled{background:#ccc;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="sidebar">
+    <div class="sh">
+      <h2>Payal — Test Panel</h2>
+      <p>Conversations managed by server.js</p>
+    </div>
+    <div class="sb">
+      <label>Test scenarios</label>
+      <textarea id="notes" readonly>Things to test:
+
+1. Basic flow
+   Type: "Hi"
+   → Should greet Rajul by name
+
+2. Casual name giving
+   Type: "ok its Priyu"
+   Type: "her name is Aanya"
+   Type: "my son Arjun"
+   → Should extract the name correctly
+
+3. City + area
+   Type: "Gurgaon"
+   Type: "DLF Phase 3"
+   → Should show 3 nearby centers
+
+4. Fees
+   Type: "what are the fees?"
+   → Should show fee table in chat
+
+5. Unrelated question
+   Type: "what's the weather?"
+   → Should politely decline
+
+Click "New chat" to start a
+fresh conversation.</textarea>
+      <div id="sid" class="pill info" style="font-size:10px"></div>
+      <div id="ctx" class="pill info">City: not detected yet</div>
+    </div>
+    <div class="sf">
+      <button class="btn btn-d" onclick="resetChat()">New chat</button>
+    </div>
+  </div>
+
+  <div class="chat">
+    <div class="ch">
+      <div class="av">P</div>
+      <div class="ch-info">
+        <h3>Payal — Footprints</h3>
+        <p id="cstat">● Online</p>
+      </div>
+    </div>
+    <div class="msgs" id="msgs">
+      <div class="msg sys">Test environment &nbsp;·&nbsp; You are Rajul &nbsp;·&nbsp; Type "Hi" to begin</div>
+    </div>
+    <div class="ci">
+      <input type="text" id="inp" placeholder="Type as Rajul..." onkeydown="if(event.key==='Enter')send()"/>
+      <button class="sb-btn" id="sbtn" onclick="send()">&#10148;</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PARENT = 'Rajul';
+
+// SESSION_ID is generated ONCE when the page loads.
+// All messages in this browser tab share the same ID so
+// the server keeps a single continuous conversation history.
+const SESSION_ID = 'test-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+let busy = false;
+document.getElementById('sid').textContent = 'Session: ' + SESSION_ID;
+
+function ts() {
+  return new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+}
+
+function addMsg(cls, html) {
+  const box = document.getElementById('msgs');
+  const el = document.createElement('div');
+  el.className = 'msg ' + cls;
+  el.innerHTML = html + (cls==='user'||cls==='bot' ? '<span class="mt">'+ts()+'</span>' : '');
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+function showTyping() {
+  const box = document.getElementById('msgs');
+  const el = document.createElement('div');
+  el.className = 'msg bot'; el.id = 'typing';
+  el.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function resetChat() {
+  // Tell the server to clear this conversation, then reload the page
+  // Reloading gives us a fresh SESSION_ID = clean slate
+  fetch('/api/reset', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({conversationId: SESSION_ID})
+  }).finally(() => location.reload());
+}
+
+async function send() {
+  const inp = document.getElementById('inp');
+  const text = inp.value.trim();
+  if (!text || busy) return;
+
+  inp.value = '';
+  busy = true;
+  document.getElementById('sbtn').disabled = true;
+  document.getElementById('cstat').textContent = '● typing...';
+
+  addMsg('user', text.replace(/[<>]/g, c => c==='<'?'&lt;':'&gt;'));
+  showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        parentName: PARENT,
+        conversationId: SESSION_ID,
+        message: text
+      })
+    });
+
+    hideTyping();
+
+    if (!res.ok) {
+      const errText = await res.text();
+      addMsg('err', '⚠ Server error ' + res.status + ': ' + errText);
+    } else {
+      const data = await res.json();
+      if (data.error) {
+        addMsg('err', '⚠ ' + data.error);
+      } else {
+        // Show meanwhile message first if present (while centers were being fetched)
+        if (data.meanwhile) {
+          addMsg('bot',
+            data.meanwhile
+              .replace(/[<>]/g, c => c==='<'?'&lt;':'&gt;')
+              .replace(/\n/g, '<br>')
+              .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+          );
+        }
+        const reply = data.reply || 'No reply received.';
+        addMsg('bot',
+          reply
+            .replace(/[<>]/g, c => c==='<'?'&lt;':'&gt;')
+            .replace(/\n/g, '<br>')
+            .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+        );
+
+        // If server returns detected city, update the pill
+        if (data.city) {
+          const el = document.getElementById('ctx');
+          el.textContent = '✓ City: ' + data.city;
+          el.className = 'pill ok';
+        }
+      }
+    }
+  } catch(e) {
+    hideTyping();
+    addMsg('err',
+      '⚠ Cannot reach server — make sure <code>npm start</code> is running in the footprints-bot folder.<br>' +
+      'Error: ' + e.message
+    );
+  }
+
+  busy = false;
+  document.getElementById('sbtn').disabled = false;
+  document.getElementById('cstat').textContent = '● Online';
+  document.getElementById('inp').focus();
+}
+
+document.getElementById('inp').focus();
+</script>
+</body>
+</html>

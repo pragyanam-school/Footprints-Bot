@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Priya — Footprints Bot Test</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0b141a;
+    --sidebar:   #111b21;
+    --topbar:    #202c33;
+    --input-bg:  #2a3942;
+    --sent:      #005c4b;
+    --recv:      #202c33;
+    --text:      #e9edef;
+    --subtext:   #8696a0;
+    --green:     #00a884;
+    --green-lt:  #25d366;
+    --red:       #ef4444;
+    --orange:    #f97316;
+    --radius:    8px;
+    --font:      'Segoe UI', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Layout ── */
+  .shell {
+    width: 420px;
+    height: 90vh;
+    max-height: 820px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,.8);
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--topbar);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    flex-shrink: 0;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--green), #008f6e);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .topbar-info { flex: 1; }
+  .topbar-name { font-weight: 600; font-size: 15px; }
+  .topbar-sub  { font-size: 12px; color: var(--subtext); margin-top: 1px; }
+  .topbar-badge {
+    background: var(--green);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: .4px;
+  }
+
+  /* ── Status bar ── */
+  .statusbar {
+    background: #1a2530;
+    padding: 5px 16px;
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--subtext);
+    flex-shrink: 0;
+    border-bottom: 1px solid #2a3942;
+  }
+  .statusbar span { display: flex; align-items: center; gap: 4px; }
+  .pill {
+    background: #2a3942;
+    padding: 1px 7px;
+    border-radius: 8px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── Takeover banner ── */
+  .takeover-banner {
+    background: var(--red);
+    color: #fff;
+    text-align: center;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    display: none;
+    flex-shrink: 0;
+  }
+  .takeover-banner.visible { display: block; }
+
+  /* ── Chat messages area ── */
+  .chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--bg);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── Message bubbles ── */
+  .bubble-wrap { display: flex; flex-direction: column; max-width: 80%; }
+  .bubble-wrap.sent  { align-self: flex-end; align-items: flex-end; }
+  .bubble-wrap.recv  { align-self: flex-start; align-items: flex-start; }
+
+  .bubble {
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    position: relative;
+  }
+  .bubble-wrap.sent .bubble  { background: var(--sent);  border-bottom-right-radius: 2px; }
+  .bubble-wrap.recv .bubble  { background: var(--recv);  border-bottom-left-radius: 2px; }
+  .bubble-wrap.nudge .bubble { background: #2a2a1e; border-left: 3px solid var(--orange); font-style: italic; }
+
+  .bubble time {
+    display: block;
+    font-size: 10px;
+    color: var(--subtext);
+    text-align: right;
+    margin-top: 4px;
+  }
+  .bubble a { color: var(--green-lt); text-decoration: underline; }
+
+  /* Typing indicator */
+  .typing-indicator {
+    align-self: flex-start;
+    background: var(--recv);
+    border-radius: var(--radius);
+    border-bottom-left-radius: 2px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .typing-indicator span {
+    width: 7px; height: 7px;
+    background: var(--subtext);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: .2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: .4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ── Input bar ── */
+  .inputbar {
+    background: var(--topbar);
+    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .inputbar textarea {
+    flex: 1;
+    background: var(--input-bg);
+    color: var(--text);
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-family: var(--font);
+    resize: none;
+    max-height: 120px;
+    line-height: 1.4;
+  }
+  .inputbar textarea::placeholder { color: var(--subtext); }
+  .send-btn {
+    width: 44px; height: 44px;
+    background: var(--green);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .2s;
+  }
+  .send-btn:hover  { background: var(--green-lt); }
+  .send-btn:active { transform: scale(.95); }
+  .send-btn svg { width: 20px; height: 20px; }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    background: var(--sidebar);
+    padding: 8px 12px;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .toolbar button {
+    flex: 1;
+    background: var(--input-bg);
+    color: var(--subtext);
+    border: none;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .toolbar button:hover { background: #374550; color: var(--text); }
+  .toolbar button.danger:hover { background: #4a1a1a; color: var(--red); }
+
+  /* ── Name prompt overlay ── */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay-card {
+    background: var(--sidebar);
+    border-radius: 12px;
+    padding: 28px 24px;
+    width: 340px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  }
+  .overlay-card h2 { font-size: 18px; margin-bottom: 6px; }
+  .overlay-card p  { color: var(--subtext); font-size: 13px; margin-bottom: 18px; }
+  .overlay-card input {
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--text);
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  .overlay-card button {
+    width: 100%;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .overlay-card button:hover { background: var(--green-lt); }
+
+  /* Scrollbar */
+  .chat::-webkit-scrollbar { width: 4px; }
+  .chat::-webkit-scrollbar-track { background: transparent; }
+  .chat::-webkit-scrollbar-thumb { background: #2a3942; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- Name prompt -->
+<div class="overlay" id="nameOverlay">
+  <div class="overlay-card">
+    <h2>👋 Welcome to Priya Bot</h2>
+    <p>Enter the parent's name to start testing the WhatsApp simulation.</p>
+    <input type="text" id="nameInput" placeholder="e.g. Sneha" maxlength="40"/>
+    <button onclick="startChat()">Start Chat</button>
+  </div>
+</div>
+
+<!-- WhatsApp shell -->
+<div class="shell">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="avatar">🌱</div>
+    <div class="topbar-info">
+      <div class="topbar-name">Priya — Footprints</div>
+      <div class="topbar-sub" id="topbarSub">online</div>
+    </div>
+    <div class="topbar-badge">AI</div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span>🏙 City: <span class="pill" id="cityPill">—</span></span>
+    <span>💬 Turns: <span class="pill" id="turnPill">0</span></span>
+  </div>
+
+  <!-- Takeover banner -->
+  <div class="takeover-banner" id="takeoverBanner">
+    ⚠️ Escalated to human agent — Priya has stopped responding
+  </div>
+
+  <!-- Chat area -->
+  <div class="chat" id="chat"></div>
+
+  <!-- Input bar -->
+  <div class="inputbar">
+    <textarea id="msgInput" rows="1" placeholder="Message" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button onclick="simulateNudge()">⏰ Simulate No Response</button>
+    <button onclick="newChat()" class="danger">🔄 New Chat</button>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const SESSION_ID = 'test_' + Math.random().toString(36).slice(2, 10);
+let parentName   = '';
+let turnCount    = 0;
+let isTakeover   = false;
+let nudgePoller  = null;
+
+// ── Start ──────────────────────────────────────────────────────────────────
+function startChat() {
+  const val = document.getElementById('nameInput').value.trim();
+  if (!val) { document.getElementById('nameInput').focus(); return; }
+  parentName = val;
+  document.getElementById('nameOverlay').style.display = 'none';
+  document.getElementById('msgInput').focus();
+  startNudgePoller();
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function now() {
+  return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function scrollBottom() {
+  const chat = document.getElementById('chat');
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addBubble(text, type /* 'sent'|'recv'|'nudge' */) {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = `bubble-wrap ${type}`;
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+
+  let html = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+    .replace(/_(.*?)_/g, '<em>$1</em>')
+    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+    .replace(/\n/g, '<br>');
+
+  bub.innerHTML = html + `<time>${now()}</time>`;
+  wrap.appendChild(bub);
+  chat.appendChild(wrap);
+  scrollBottom();
+  return bub;
+}
+
+function addTyping() {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.id = 'typingDot';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  chat.appendChild(el);
+  scrollBottom();
+  return el;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingDot');
+  if (el) el.remove();
+}
+
+function updateStatus(city) {
+  if (city) document.getElementById('cityPill').textContent = city;
+  document.getElementById('turnPill').textContent = turnCount;
+}
+
+// ── Send message ───────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text  = input.value.trim();
+  if (!text || isTakeover) return;
+  input.value = '';
+  input.style.height = 'auto';
+  input.focus();
+
+  addBubble(text, 'sent');
+  turnCount++;
+
+  const typing = addTyping();
+  document.getElementById('topbarSub').textContent = 'typing...';
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ parentName, conversationId: SESSION_ID, message: text }),
+    });
+    const data = await res.json();
+    removeTyping();
+    document.getElementById('topbarSub').textContent = 'online';
+
+    // Handle MSG_BREAK splits
+    const parts = (data.reply || '').split('<MSG_BREAK>').map(s => s.trim()).filter(Boolean);
+    for (let i = 0; i < parts.length; i++) {
+      if (i > 0) await sleep(2200);
+      addBubble(parts[i], 'recv');
+    }
+
+    // Concern menu fires as a separate follow-up bubble
+    if (data.concernMenuMessage) {
+      await sleep(1800);
+      addBubble(data.concernMenuMessage, 'recv');
+    }
+
+    updateStatus(data.city);
+
+    if (data.humanTakeover) {
+      isTakeover = true;
+      document.getElementById('takeoverBanner').classList.add('visible');
+      stopNudgePoller();
+    }
+  } catch (err) {
+    removeTyping();
+    document.getElementById('topbarSub').textContent = 'online';
+    addBubble('⚠️ Error connecting to server. Is it running?', 'recv');
+    console.error(err);
+  }
+}
+
+// ── Nudge simulation ───────────────────────────────────────────────────────
+async function simulateNudge() {
+  if (isTakeover) return;
+  try {
+    const res  = await fetch('/api/nudge', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ conversationId: SESSION_ID }),
+    });
+    const data = await res.json();
+    if (data.nudge) {
+      addBubble(`⏰ *[Nudge]* ${data.nudge}`, 'nudge');
+    } else {
+      addBubble('⚠️ No nudge available (max 2 reached, visit booked, or takeover active)', 'nudge');
+    }
+  } catch(e) { console.error(e); }
+}
+
+// ── Nudge poller — polls every 15s for auto-timer nudges ──────────────────
+function startNudgePoller() {
+  nudgePoller = setInterval(async () => {
+    if (isTakeover) { stopNudgePoller(); return; }
+    try {
+      const res  = await fetch(`/api/nudge-check?conversationId=${SESSION_ID}`);
+      const data = await res.json();
+      if (data.nudge) addBubble(`⏰ *[Auto Nudge]* ${data.nudge}`, 'nudge');
+    } catch(e) {}
+  }, 15000);
+}
+
+function stopNudgePoller() {
+  if (nudgePoller) { clearInterval(nudgePoller); nudgePoller = null; }
+}
+
+// ── New chat ───────────────────────────────────────────────────────────────
+async function newChat() {
+  stopNudgePoller();
+  await fetch('/api/reset', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ conversationId: SESSION_ID }),
+  }).catch(() => {});
+  location.reload();
+}
+
+// ── Utility ────────────────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+window.onload = () => document.getElementById('nameInput').focus();
+</script>
+</body>
+</html>

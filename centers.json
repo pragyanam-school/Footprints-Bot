@@ -1,0 +1,659 @@
+[
+  {
+    "city": "Bengaluru",
+    "area": "5th Cross Road, Koramangala 3 Block",
+    "addr": "House 656, 5th Cross, 3rd Block, Koramangala",
+    "lmk": "Opp R J S First Grade College",
+    "near": "Koramangala 3 Block,Koramangala 4th Block,Koramangala 2nd Block,Koramangala 8th Block,S.G. Palya,Madiwala",
+    "map": "https://maps.app.goo.gl/jxyFkA8S7ai9ucrP7",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Koramangala 6th Block",
+    "addr": "217, 4th Cross, 19th Main, Koramangala, 6th Block",
+    "lmk": "Behind Bethany High School",
+    "near": "Koramangala,Madiwala,S T Bed Layout,Koramangala 4th Block,7th Block Koramangala",
+    "map": "https://g.page/FootprintsPlaySchoolKoramangala",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Indiranagar",
+    "addr": "No 29, Bharathi Nilaya, 10th Cross Road, HAL 2nd Stage, Indiranagar",
+    "lmk": "Near Little Krishna Speciality",
+    "near": "New Tippasandra,Kodihalli,Indiranagar,Murgesh Pallya,Domlur,Eshwara Layout",
+    "map": "https://g.page/FootprintsPlaySchoolIndiraNagarB",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "HSR Layout",
+    "addr": "Premises No.1, MCHS Colony, 14th Main Rd, Sector 4, HSR Layout",
+    "lmk": "Near Venugopala Swamy Temple",
+    "near": "HSR Layout,Sector 2,Sector 6,HSR Layout 5th Sector,BDA Layout,Sector 7,Bommanahalli",
+    "map": "https://g.page/FootprintsPlaySchoolHSRLayout",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "HSR Layout Sector 2",
+    "addr": "#1173, 24th Main Road, HSR Sector No. 2",
+    "lmk": "Near Axis Bank ATM",
+    "near": "HSR Layout,Sector 3,Sector 4,ITI Layout,7th Sector,Sector 2,Bommanahalli",
+    "map": "https://maps.app.goo.gl/oL4Cfjw1WLPMboaV8",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "BTM Layout",
+    "addr": "9, Outer Ring Rd, Aicobo Nagar, 1st Stage, BTM Layout",
+    "lmk": "Near KTM Dealer",
+    "near": "BTM Layout,BTM 2nd Stage,Mico Layout,Madiwala,Central Silk Board Colony,Tavarekere",
+    "map": "https://maps.app.goo.gl/JdskusAaiq6qdJX46",
+    "tier": "B"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Whitefield (Hopefarm)",
+    "addr": "1/A1, D Silva Layout, Whitefield",
+    "lmk": "Near Royalmart SuperMarket",
+    "near": "Whitefield,Pattandur Agrahara,Immadihalli,Palm Meadows,Dommarapalya",
+    "map": "https://g.page/FootprintsPlaySchoolWhitefield",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Brookefield",
+    "addr": "No. 7/1, Manohara Plazaa, ITPL Main Rd, Brookefield",
+    "lmk": "Adjoining HDFC Bank",
+    "near": "Brookefield,Siddapura,Munnekollal,Chinnapanna Halli,Nallurhalli,Hoodi,EPIP Zone",
+    "map": "https://goo.gl/maps/ppHzv5G2xS6JDsPR6",
+    "tier": "A"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "JP Nagar 4th Phase",
+    "addr": "House# 349, 9th Main Road, Dollars Colony, JP Nagar 4th Phase",
+    "lmk": "Near Sri Lakshmi Nilaya Apartments",
+    "near": "JP Nagar 4th Phase,JP Nagar 3rd Phase,JP Nagar 5th Phase,Bilekahalli,Ranka Colony",
+    "map": "https://maps.app.goo.gl/HwWcBouRmw2HKQgn6",
+    "tier": "B"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Jayanagar 7th Block",
+    "addr": "House No 414/17, 1st A Main, 5th Cross, 7th Block, Jayanagar",
+    "lmk": "Near SR Comforts building",
+    "near": "Jayanagar,Basavanagudi,Byrasandra,Thyagaraja Nagar,Sarakki Nagar,J.P. Nagar",
+    "map": "https://maps.app.goo.gl/76oJTwKE3sZVu7qu5",
+    "tier": "B"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Electronic City",
+    "addr": "Ground & First Floor, Site 10, Hulimangala Main Rd",
+    "lmk": "Electronic City Phase 1",
+    "near": "Electronic City,Electronic City Phase 1,Gollahalli,Shikaripalya,Siraj Layout,Neotown",
+    "map": "https://maps.app.goo.gl/4RqfMzCqgj7mqcNr5",
+    "tier": "B"
+  },
+  {
+    "city": "Bengaluru",
+    "area": "Hebbal Kempapura",
+    "addr": "House# 258, 3rd Main Road, Coffee Board Layout, Hebbal Kempapura",
+    "lmk": "Near ULEX Diagnostics",
+    "near": "Nagavara,Hebbal,R.T Nagar,Manyata Tech Park,Shampura,Kaval Bairasandra,Anandnagar",
+    "map": "https://maps.app.goo.gl/5H9QxtmHekzjSKt76",
+    "tier": "B"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "DLF Phase 3",
+    "addr": "U-26/3114, DLF Phase 3, Nathupur",
+    "lmk": "Opp White Town Houses",
+    "near": "DLF Phase 3,S Block,Sector 24,V Block,Nathupur,Sector 25,Sikanderpur",
+    "map": "https://g.page/FootprintsPlaySchoolDLFFhase3",
+    "tier": "A"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "DLF Phase 4",
+    "addr": "Site# 4109, DLF-4, Sector 28",
+    "lmk": "Near DCP Traffic Offices",
+    "near": "DLF Phase 4,Sector 27,Sector 28,Sushant Lok Phase I,DLF City IV,Sector 29",
+    "map": "https://g.page/FootprintsPlaySchoolDLFPhase4",
+    "tier": "A"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Mayfield Garden, Sector 51",
+    "addr": "Plot# 9, Next to Artemis Hospital, Mayfield Garden, Sector 51",
+    "lmk": "Adjoining Artemis Hospital",
+    "near": "Mayfield Garden,Sector 45,Sector 51,Sector 52,Wazirabad,Indira Colony",
+    "map": "https://g.page/FootprintsPlaySchoolMayfieldGard",
+    "tier": "A"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Sector 14",
+    "addr": "B-28, Old DLF, Sector 14",
+    "lmk": "Behind Aimfit Gym",
+    "near": "Sector 12,Sector 13,Sector 14,Sector 16,Sukhrali,Sector 30",
+    "map": "https://g.page/FootprintsPlaySchoolSec-14",
+    "tier": "B"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Sector 4",
+    "addr": "ML Complex, Laxman Vihar, Sector 4",
+    "lmk": "Opp. CCA School",
+    "near": "Laxman Vihar,Sector 3A,Sector 4,Sector 5,Sector 6,Ashok Vihar II",
+    "map": "https://g.page/FootprintsPlaySchoolSec-4",
+    "tier": "B"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Palam Vihar",
+    "addr": "Plot No-189, Block C1, Gate No-3, Palam Vihar",
+    "lmk": "Near Spanish Court Mall",
+    "near": "Palam Vihar,Palam Vihar Extension,Ashok Vihar Phase III,Sector 105,New Palam Vihar",
+    "map": "https://g.page/FootprintsPlaySchoolPalamVihar",
+    "tier": "B"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Sector 67",
+    "addr": "Nursery School at Park Prime, Sector 67",
+    "lmk": "Near Axis Bank Branch",
+    "near": "Sector 67,Sector 67A,Sector 64,Sector 65,Sector 38,Sector 68",
+    "map": "https://maps.app.goo.gl/rpjHNpxKoVCRgisr8",
+    "tier": "B"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Sohna Road, Sector 48",
+    "addr": "Parsvnath Greenville, Sohna Road, Sector 48",
+    "lmk": "Next To Vipul Trade Center",
+    "near": "Sohna Road,Sispal Vihar,Sector 47,Sector 48,Sector 49,Badshahpur,Vipul World",
+    "map": "https://g.page/FootprintsPlaySchoolSohnaRoad",
+    "tier": "A"
+  },
+  {
+    "city": "Gurgaon",
+    "area": "Nirvana Country, Sector 50",
+    "addr": "NS-12, W Block, South City 2, Nirvana Country, Sector 50",
+    "lmk": "Harmony Apartments",
+    "near": "Nirvana Country,Vatika City,Sector 49,Orchid Petals,Rosewood City,South City",
+    "map": "https://maps.app.goo.gl/jsC5LKSmQA5JQEr2A",
+    "tier": "A"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Dwarka Sector 3",
+    "addr": "House# 28, Karuna Kunj, Sector-3, Dwarka",
+    "lmk": "Above Punjab National Bank",
+    "near": "Dwarka,Dwarka Sector 3,Matiala,Bindapur,Sector 2,Sector 4,Sector 5",
+    "map": "https://maps.app.goo.gl/wryiFPNqb3ooLia87",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Dwarka Sector 10",
+    "addr": "House#6, Sector 10, Dwarka",
+    "lmk": "Above Indusind Bank",
+    "near": "Dwarka,Dwarka Sector 10,Dwarka Sector 9,Sector 7 Dwarka,Sector 6 Dwarka",
+    "map": "https://maps.app.goo.gl/9HYWDGip9eLjy9Tf6",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Dwarka Sector 12",
+    "addr": "Plot# 9, Sector-12 A, Dwarka",
+    "lmk": "Opposite CNG pump",
+    "near": "Dwarka,Dwarka Sector 12,Sector 13,Sector 11 Dwarka,Sector 14 Dwarka",
+    "map": "https://goo.gl/maps/dSD2XQXWJJsocidC9",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Dwarka Sector 17",
+    "addr": "Plot# 13, Pocket B-3, Sector-17, Dwarka",
+    "lmk": "Near DCP Head Office",
+    "near": "Dwarka,Dwarka Sector 17,Sector 13,Sector 16C,Sector 16B Dwarka,Sector 18A",
+    "map": "https://g.page/FootprintsPlaySchoolDwarkaSec17",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Green Park",
+    "addr": "K-7, Ground Floor, Green Park Extension",
+    "lmk": "Opp Reliance Fresh",
+    "near": "Green Park,Gulmohar Park,Gautam Nagar,Neeti Bagh,Safdarjung Enclave,Hauz Khas",
+    "map": "https://maps.app.goo.gl/33kTCWt6wCRs39pW6",
+    "tier": "B"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Lajpat Nagar Part 3",
+    "addr": "C-42 Shaheed Mohan Dutta Marg, Lajpat Nagar 3",
+    "lmk": "Near Police Station",
+    "near": "Lajpat Nagar,Defence Colony,Jangpura,Nehru Nagar,Jal Vihar",
+    "map": "https://g.page/FootprintsPlaySchoolLajpatNagar",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Janakpuri",
+    "addr": "A-2/8, Pankha Rd, Janakpuri",
+    "lmk": "Near Palazzo Inn",
+    "near": "Janakpuri,Uttam Nagar,Bindapur,Sitapuri,Block C2B,Chander Nagar",
+    "map": "https://g.page/FootprintsPlaySchoolJanakpuri",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Mayur Vihar Phase-1",
+    "addr": "A 14/3 Acharya Niketan, Mayur Vihar Phase 1",
+    "lmk": "Opp Aggarwal Bikaneri Sweets",
+    "near": "Mayur Vihar Phase 1,Pocket 1 Mayur Vihar,Patparganj,Himmatpuri",
+    "map": "https://g.page/FootprintsPlaySchoolMayurViharP1",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Rohini Sector 11",
+    "addr": "P4P6+38G, Pocket 3, Sector 11, Rohini",
+    "lmk": "Titishka Public School",
+    "near": "Rohini Sector 11,Rohini Sector 15,Rohini Sector 12,Rohini Sector 17",
+    "map": "https://goo.gl/maps/5aRWBd9ukWiYt6xL7",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Model Town",
+    "addr": "A17, Stadium Road, Mahendru Enclave, Gujranwala Town",
+    "lmk": "Near Chhatrasal Stadium Road",
+    "near": "Model Town,GTB Nagar,Azadpur,Wazirpur,Adarsh Nagar,Ashok Vihar",
+    "map": "https://g.page/FootprintsPlaySchoolModelTown",
+    "tier": "C"
+  },
+  {
+    "city": "New Delhi",
+    "area": "Rajouri Garden",
+    "addr": "Z-7, Ground Floor, Rajouri Garden",
+    "lmk": "Behind Kalyan Jewellers",
+    "near": "Rajouri Garden,Rajouri Garden Extension,Raja Garden,Raghubir Nagar",
+    "map": "https://goo.gl/maps/71yd6ZST5ap3Js3U7",
+    "tier": "C"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 51 (D-Block)",
+    "addr": "D-85/3, Jacaranda Lane, Sector 51",
+    "lmk": "Near LPS Global School",
+    "near": "Sector 51,Sector 53,Sector 72,Sector 75,Sector 52,Sector 50",
+    "map": "https://g.page/FootprintsPlaySchoolSec51Noida",
+    "tier": "A"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 51 (H-Block)",
+    "addr": "Block H, Plot #50, Sector 51",
+    "lmk": "Near Rhythm Sangeet",
+    "near": "Sector 51,Sector 39,Sector 50,Sector 53,Sector 75,Sector 31",
+    "map": "https://maps.app.goo.gl/TqiM5TFyLCG12onAA",
+    "tier": "A"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 62",
+    "addr": "C-56A/21, Institutional Area, Sector 62",
+    "lmk": "Besides Mohan International School",
+    "near": "Sector 62,Sector 64,Sector 58,Sector 59,Sector 66,Sector 63",
+    "map": "https://g.page/FootprintsPlaySchoolSec-62",
+    "tier": "A"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 45",
+    "addr": "BR-11, Sector 45",
+    "lmk": "Near Ganeshwaram Restaurant",
+    "near": "Sector 45,Sector 99,Sector 46,Sector 96,Maya Nagar,Sector 44,Sector 47",
+    "map": "https://goo.gl/maps/gYhCeV9whxYR6dEX9",
+    "tier": "B"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 104",
+    "addr": "Sector 104, HA-03",
+    "lmk": "Near Pathways School",
+    "near": "Sector 104,Lotus Boulevard,Sector 97,Sector 98,Sector 100,Sector 105",
+    "map": "https://g.page/FootprintsPlaySchoolSector104",
+    "tier": "B"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 117",
+    "addr": "Plot#KB-3, Sector 117",
+    "lmk": "Opp. Grand Ajnara Heritage",
+    "near": "Sector 117,Prateek Wisteria,Sector 75,Sector 77,Sector 118,Sector 116",
+    "map": "https://g.page/FootprintsPlaySchoolSector117",
+    "tier": "B"
+  },
+  {
+    "city": "Noida",
+    "area": "Sector 130",
+    "addr": "WP-210 & 211, Sector 130",
+    "lmk": "Near Shri Ram Millennium School",
+    "near": "Sector 130,Sector 137,Sector 134,Sector 136,Sector 135,Sector 129",
+    "map": "https://g.page/FootprintsPlaySchoolSector130",
+    "tier": "B"
+  },
+  {
+    "city": "Noida",
+    "area": "Noida Extension",
+    "addr": "Plot No-38, Itehara Village, Noida Extension",
+    "lmk": "Cherry County, Police Chowki",
+    "near": "Noida Extension,Gaur City 1,Panchsheel Green,Amrapali Dream Valley,Eco Village 2",
+    "map": "https://g.page/FootprintsPlaySchoolNoidaPhase2",
+    "tier": "B"
+  },
+  {
+    "city": "Hyderabad",
+    "area": "Jayabheri Enclave, Gachibowli",
+    "addr": "House No. 4-50/42/B, Gachibowli, Serilingampally",
+    "lmk": "Near PNB Jayabheri Enclave",
+    "near": "Gachibowli,Jayabheri Enclave,Anjaiah Nagar,Indira Nagar,Rajiv Gandhi Nagar",
+    "map": "https://maps.app.goo.gl/uHrgshxH8rcvRvKc8",
+    "tier": "A"
+  },
+  {
+    "city": "Hyderabad",
+    "area": "Lumbini Avenue, Gachibowli",
+    "addr": "KT Heights, Lumbini Avenue, Gachibowli",
+    "lmk": "Near Unity Homes",
+    "near": "Lumbini Avenue,Gachibowli,Telecom Nagar,Jayabheri Pine Valley",
+    "map": "https://maps.app.goo.gl/aAPBuEH8YTGVU2547",
+    "tier": "A"
+  },
+  {
+    "city": "Hyderabad",
+    "area": "Madhapur",
+    "addr": "House# 379, Road# 20, Swamy Ayyappa Society, Madhapur",
+    "lmk": "Near FICS Interiors",
+    "near": "Madhapur,Siddhi Vinayak Nagar,Gayatri Nagar,Allapur,Shaikpet",
+    "map": "https://maps.app.goo.gl/2b3vUHQXEodKyhGT9",
+    "tier": "A"
+  },
+  {
+    "city": "Hyderabad",
+    "area": "Anjali Gardens, Manikonda",
+    "addr": "Plot#43, Anjali Gardens, Pupalaguda, Manikonda",
+    "lmk": "Opposite Mount Litera School",
+    "near": "Manikonda,Quli Qutub Shah Layout,Puppalguda,Shaikpet,Narsingi",
+    "map": "https://maps.app.goo.gl/okoZbp24MZgceM4EA",
+    "tier": "B"
+  },
+  {
+    "city": "Hyderabad",
+    "area": "KPHB Phase-4, Kukatpally",
+    "addr": "Plot Bearing# 37/MIG-II, Phase-4, KPHB Colony, Kukatpally",
+    "lmk": "Near Bhimavaram Bhojanalu",
+    "near": "KPHB Phase 4,KPHB 5th Phase,Rajiv Gandhi Nagar,Malaysian Township,Kukatpally",
+    "map": "https://maps.app.goo.gl/xHHLf5c98Q33VuvP6",
+    "tier": "B"
+  },
+  {
+    "city": "Hyderabad",
+    "area": "Miyapur",
+    "addr": "Plot No.96, Miyapur Residential Complex, Serilingampally",
+    "lmk": "Near Sai Ram Elite Apartments",
+    "near": "Miyapur,Mayuri Nagar,Venkatraya Nagar,Nizampet,Nagarjuna Enclave",
+    "map": "https://maps.app.goo.gl/SUrHiHQTgPdNr6fg8",
+    "tier": "B"
+  },
+  {
+    "city": "Pune",
+    "area": "Baner",
+    "addr": "Audumbar Bungalow# 22, Lane# 4, Laxman Nagar, Baner",
+    "lmk": "Emersion Residency",
+    "near": "Baner,Dasar,Ram Nagar,Laxman Nagar,Chakankar Mala,Veerbhadra Nagar",
+    "map": "https://goo.gl/maps/Nwbd72nEYAzF2Gb2A",
+    "tier": "D"
+  },
+  {
+    "city": "Pune",
+    "area": "Kalyani Nagar",
+    "addr": "Row House# 5, Mit Garden, Vithalrao Vandekar Road, Kalyani Nagar",
+    "lmk": "Near Shiv Ling Mandir",
+    "near": "Kalyani Nagar,Yerawada,Wadgaon Sheri,Ramwadi,Adarsh Nagar,Shastrinagar",
+    "map": "https://maps.app.goo.gl/r9ep9VAKtPJo9dZq6",
+    "tier": "D"
+  },
+  {
+    "city": "Pune",
+    "area": "Magarpatta",
+    "addr": "Bungalow No-30, Kakade Villa, Mulberry Garden 2, Magarpatta",
+    "lmk": "Near Cinema Street Film School",
+    "near": "Magarpatta,Jahangir Nagar,Kad Wasti,Hadapsar,Jasminium Society",
+    "map": "https://maps.app.goo.gl/5DSjff5hPCYg6Avo8",
+    "tier": "D"
+  },
+  {
+    "city": "Mumbai",
+    "area": "Borivali West",
+    "addr": "G-1, Unit 6, BOA VISTA CHSL, Holy Cross Road, I.C. Colony, Borivali West",
+    "lmk": "Opposite M M Hospital",
+    "near": "Borivali West,Dahisar East,Dahisar West,Mandapeshwa,Ganpat Patil Nagar",
+    "map": "https://maps.app.goo.gl/tWjnrSuLoMBcA2xx6",
+    "tier": "D"
+  },
+  {
+    "city": "Ghaziabad",
+    "area": "Crossing Republik",
+    "addr": "6A Om Vihar Colony, Opposite Crossing Republik",
+    "lmk": "Near ABES Engineering College",
+    "near": "Crossing Republik,Dundahera,Crossings Republik,Chipiyana Buzurg,Shivpuri",
+    "map": "https://g.page/FootprintsPlaySchoolCrossingRepb",
+    "tier": "D"
+  },
+  {
+    "city": "Ghaziabad",
+    "area": "Niti Khand 1, Indirapuram",
+    "addr": "584, Ground Floor, Niti Khand-1, Indirapuram",
+    "lmk": "Near Presidium School",
+    "near": "Indirapuram,Niti Khand,Nyay Khand I,Shakti Khand 4,Vaibhav Khand",
+    "map": "https://g.page/FootprintsPlaySchoolNitiKhand2",
+    "tier": "D"
+  },
+  {
+    "city": "Ghaziabad",
+    "area": "Sector 3, Vaishali",
+    "addr": "310, Sector 3A, PNB Road, Vaishali",
+    "lmk": "Near PNB Bank",
+    "near": "Vaishali,Sector 3,Sector 5,Sector 2,Sector 1,Gyan Khand 1",
+    "map": "https://g.page/FootprintsPlaySchoolVaishaliSec1",
+    "tier": "D"
+  },
+  {
+    "city": "Greater Noida",
+    "area": "Alpha 2",
+    "addr": "NS 7, Alpha 2",
+    "lmk": "Near Astha Hospital",
+    "near": "Alpha 2,Beta I,Alpha I,Beta II,Delta I,Gamma 1,Sector Alpha II",
+    "map": "https://goo.gl/maps/QgHTQJodeE9E1NL1A",
+    "tier": "E"
+  },
+  {
+    "city": "Greater Noida",
+    "area": "Sector 1, Greater Noida West",
+    "addr": "Opposite Gate #4, Stellar One, Sector-1, Greater Noida West",
+    "lmk": ".",
+    "near": "Greater Noida West,Sector 1,Sector 2,Amrapali Dream Valley,Techzone 4,Bisrakh",
+    "map": "https://goo.gl/maps/PNtsdepPtW8u9ihc6",
+    "tier": "E"
+  },
+  {
+    "city": "Lucknow",
+    "area": "Aliganj Sector G",
+    "addr": "B-123, Sector G Main Rd, Aliganj",
+    "lmk": "Near Savitri Apartments",
+    "near": "Aliganj,Sector B,Sector K,Vishnupuri,Vikas Nagar,Sector N",
+    "map": "https://goo.gl/maps/zU1CT63RBwwNmC6M8",
+    "tier": "E"
+  },
+  {
+    "city": "Lucknow",
+    "area": "Gomti Nagar Extension",
+    "addr": "B-1/326 Sector 1, Vardan Khand, Gomti Nagar Extension",
+    "lmk": "CMS Cambridge Section",
+    "near": "Gomti Nagar Extension,Vardan Khand,Sector 1,Gomti Nagar,Vipul Khand,Vineet Khand",
+    "map": "https://g.page/r/CX6LfY-wc4gxEBA",
+    "tier": "E"
+  },
+  {
+    "city": "Lucknow",
+    "area": "Indira Nagar",
+    "addr": "B-block 1051, Indira Nagar",
+    "lmk": "Bhootnath Market & AG Church",
+    "near": "Indira Nagar,Sanjay Gandhi Puram,Ravindra Palli Colony,H.A.L. Colony,Shakti Nagar",
+    "map": "https://g.page/FootprintsPlaySchoolIndiraNagar",
+    "tier": "E"
+  },
+  {
+    "city": "Jaipur",
+    "area": "Chitrakoot",
+    "addr": "B-4/30, Mahant Swami Marg, Sector-4, Chitrakoot",
+    "lmk": "Near Abhay Haveli",
+    "near": "Chitrakoot,Acharya Vinoba Bhave Nagar,Ayodhya Nagar,Sanjay Nagar",
+    "map": "https://g.page/FootprintsPlaySchoolChitrakut",
+    "tier": "E"
+  },
+  {
+    "city": "Jaipur",
+    "area": "Civil Lines",
+    "addr": "34, Raj Bhavan Road, Civil Lines",
+    "lmk": "Near Loharu House",
+    "near": "Civil Lines,Ramnagar,Jai Ambey Colony,Lakshmi Nagar,Shivaji Nagar",
+    "map": "https://goo.gl/maps/S9PqnuAksuYUdiFQ6",
+    "tier": "E"
+  },
+  {
+    "city": "Jaipur",
+    "area": "Durga Pura",
+    "addr": "Plot# 30, Jai Jawan Colony-II, Near Durga Pura, Tonk Road",
+    "lmk": "Bombay Mishtan Bhandar",
+    "near": "Durgapura,Bajaj Nagar,Himmat Nagar,Gayatri Nagar B,Kirti Nagar",
+    "map": "https://goo.gl/maps/erRwNe1bhgS6JVf9A",
+    "tier": "E"
+  },
+  {
+    "city": "Faridabad",
+    "area": "Sector 85",
+    "addr": "Block D, BPTP Parklands, Sector 85, Greater Faridabad",
+    "lmk": "Near Aravali International School",
+    "near": "Sector 85,Sector 81,Sector 82,Sector 84,Sector 86,Sector 89",
+    "map": "https://g.page/FootprintsPlaySchoolSec-85",
+    "tier": "E"
+  },
+  {
+    "city": "Chennai",
+    "area": "K.K.Nagar",
+    "addr": "Plot No 99, Lakshmanasamy Salai, K.K.Nagar",
+    "lmk": "Near Vijay Hospital",
+    "near": "K.K.Nagar,Bharathi Nagar,Nesapakkam,Saligramam,Ashok Nagar,Sivalingapuram",
+    "map": "https://maps.app.goo.gl/APUZBZoFLtBr6TaT6",
+    "tier": "D"
+  },
+  {
+    "city": "Chennai",
+    "area": "Perungudi",
+    "addr": "Villa# 2, Door# 30, Ramappa Nagar, Perungudi",
+    "lmk": "Opposite Brigade World Trade Centre",
+    "near": "Perungudi,Lakshmi Nagar,Palavakkam,Ambedkar Nagar,Kandhanchavadi",
+    "map": "https://maps.app.goo.gl/ZmARU2W6fcB3o9t77",
+    "tier": "D"
+  },
+  {
+    "city": "Kolkata",
+    "area": "Salt Lake City",
+    "addr": "AJ-84, Sector II, Salt Lake City",
+    "lmk": "Guardian Healthcare ENT & Ortho",
+    "near": "Salt Lake City,Sector II Bidhannagar,Hanapara,Kestopur,Talbagan,Krishnapur",
+    "map": "https://goo.gl/maps/G8s5Gra1FswpZYFE7",
+    "tier": "D"
+  },
+  {
+    "city": "Kochi",
+    "area": "Kathrikadavu, Kaloor",
+    "addr": "House No-64/2394, Old Kaloor, Kathrikadavu Road",
+    "lmk": "Near IFT Designs",
+    "near": "Kaloor,Kathrikadavu,Elamakkara,Palarivattom,Edapally,Marine Drive,Panampilly Nagar",
+    "map": "https://maps.app.goo.gl/fr6YdVEZDvDjeaom7",
+    "tier": "D"
+  },
+  {
+    "city": "Indore",
+    "area": "Kalpana Lok Colony",
+    "addr": "91-A, Baikunth Dham Rd, Kalpana Lok Colony",
+    "lmk": "Opp. Mangalam Avenue Apartment",
+    "near": "Kalpana Lok Colony,Saket Nagar,Shree Nagar,Ravindra Nagar,Tilak Nagar",
+    "map": "https://maps.app.goo.gl/PpXXXUtvAynV4DoC6",
+    "tier": "F"
+  },
+  {
+    "city": "Ahmedabad",
+    "area": "Bodakdev",
+    "addr": "ANOOPAM, House# 285, Bodakdev",
+    "lmk": "Near Shakam Tower",
+    "near": "Bodakdev,Memnagar,Vastrapur,Thaltej,Ramdev Nagar,Nehru Nagar,Ambawadi",
+    "map": "https://maps.app.goo.gl/41eJWUxruk4r6WXUA",
+    "tier": "F"
+  },
+  {
+    "city": "Bhubaneswar",
+    "area": "Chandrasekharpur",
+    "addr": "Plot No-238, District Center, Chandrasekharpur",
+    "lmk": "Near Yakshita Dance Studio",
+    "near": "Chandrasekharpur,Sri Aurobindo Nagar,Sector 2,Defence Colony,Neeladri Vihar",
+    "map": "https://maps.app.goo.gl/RqnXUsKo1SxG7hjt8",
+    "tier": "F"
+  },
+  {
+    "city": "Patna",
+    "area": "S.K. Puri, Boring Road",
+    "addr": "House# 196-B, Shri Krishna Puri, Boring Road",
+    "lmk": "Near Holi Mission School",
+    "near": "S K Puri,Gandhi Nagar,Anandpuri,Sri Krishna Puri,Kidwaipuri",
+    "map": "https://maps.app.goo.gl/FBAW8gb4SwN4FQxK9",
+    "tier": "G"
+  },
+  {
+    "city": "Srinagar",
+    "area": "Baghat Chowk, Khalidabad",
+    "addr": "House#146, Baghat Chowk, Lane# 1, Khalidabad",
+    "lmk": "Lane No 1, Khalidabad",
+    "near": "Baghat,Barzulla,Gul Berg Colony,Asrar Colony,Bulbul Bagh,Chinar Colony",
+    "map": "https://maps.app.goo.gl/337Q8totAMVHnk1N9",
+    "tier": "G"
+  },
+  {
+    "city": "Udaipur",
+    "area": "Ashok Vihar, Pahada",
+    "addr": "Plot No 21-22, New Ashok Vihar, Pahada",
+    "lmk": "Opp. Dental Plus Clinic",
+    "near": "Ashok Vihar,Kharakua,Rupsagar,Aashirwad Nagar,Keshav Nagar,New Ashok Vihar",
+    "map": "https://maps.app.goo.gl/L1iBkHcR4ofs1UyY6",
+    "tier": "G"
+  },
+  {
+    "city": "Gwalior",
+    "area": "Madhav Nagar",
+    "addr": "M-122 Madhav Nagar",
+    "lmk": "Near MAKEUPARTLAND Studio",
+    "near": "Madhav Nagar,Mahalgaon,Scindiya Nagar,Chetakpuri,Vijay Nagar,Lashkar",
+    "map": "https://maps.app.goo.gl/ouEaFs1quZUExev49",
+    "tier": "G"
+  }
+]
