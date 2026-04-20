@@ -277,6 +277,27 @@
   }
   .overlay-card button:hover { background: var(--green-lt); }
 
+  /* ── Concern menu option buttons ── */
+  .concern-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 12px 10px;
+    align-items: flex-start;
+  }
+  .concern-opt {
+    background: var(--input-bg);
+    color: var(--green-lt);
+    border: 1px solid var(--green);
+    border-radius: 18px;
+    padding: 7px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .concern-opt:hover { background: #1a2e26; }
+  .concern-opt:disabled { opacity: .4; cursor: default; }
+
   /* Scrollbar */
   .chat::-webkit-scrollbar { width: 4px; }
   .chat::-webkit-scrollbar-track { background: transparent; }
@@ -449,10 +470,14 @@ async function sendMessage() {
       addBubble(parts[i], 'recv');
     }
 
-    // Concern menu fires as a separate follow-up bubble
+    // Concern menu fires as a separate follow-up bubble with clickable option buttons
     if (data.concernMenuMessage) {
       await sleep(1800);
       addBubble(data.concernMenuMessage, 'recv');
+      if (data.concernMenuOptions && data.concernMenuOptions.length) {
+        await sleep(600);
+        addConcernMenu(data.concernMenuOptions);
+      }
     }
 
     updateStatus(data.city);
@@ -517,6 +542,28 @@ async function newChat() {
 
 // ── Utility ────────────────────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function addConcernMenu(options) {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = 'concern-options';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'concern-opt';
+    btn.textContent = opt.label;
+    btn.onclick = () => {
+      // disable all buttons so it can't be clicked twice
+      wrap.querySelectorAll('.concern-opt').forEach(b => b.disabled = true);
+      // fill input and send as if the user typed it
+      const input = document.getElementById('msgInput');
+      input.value = opt.label;
+      sendMessage();
+    };
+    wrap.appendChild(btn);
+  });
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+}
 
 window.onload = () => document.getElementById('nameInput').focus();
 </script>

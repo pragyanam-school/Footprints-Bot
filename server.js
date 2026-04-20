@@ -35,13 +35,14 @@ const MAX_HISTORY    = 20;
 const NUDGE_DELAY_MS = 2 * 60 * 1000;
 
 // ─── KNOWLEDGE: CONCERN MENU ─────────────────────────────────────────────────
-const CONCERN_MENU =
-  `What would you most like to know about Footprints first? 😊\n\n` +
-  `1️⃣ How children learn (Curriculum & Active Learning)\n` +
-  `2️⃣ Safety & Security\n` +
-  `3️⃣ Food & Nutrition\n` +
-  `4️⃣ Live CCTV & AI Monitoring\n\n` +
-  `Just reply with a number!`;
+const CONCERN_OPTIONS = [
+  { label: 'Curriculum & Active Learning', key: 'curriculum' },
+  { label: 'Safety & Security',            key: 'safety'     },
+  { label: 'Food & Nutrition',             key: 'food'       },
+  { label: 'Live CCTV & AI Monitoring',    key: 'cctv'       },
+];
+
+const CONCERN_MENU = `What would you most like to know about Footprints first? 😊`;
 
 // Server-generated concern acknowledgments — {childName} and {parentName} substituted at runtime
 const CONCERN_ACK = {
@@ -66,7 +67,14 @@ const CONCERN_ACK = {
     `Which city are you in, {parentName}?`,
 };
 
-const CONCERN_KEY_MAP = { '1': 'curriculum', '2': 'safety', '3': 'food', '4': 'cctv' };
+// Maps numeric answers OR the full option label text → concern key
+const CONCERN_KEY_MAP = {
+  '1': 'curriculum', '2': 'safety', '3': 'food', '4': 'cctv',
+  'curriculum & active learning': 'curriculum',
+  'safety & security':            'safety',
+  'food & nutrition':             'food',
+  'live cctv & ai monitoring':    'cctv',
+};
 
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -139,16 +147,20 @@ function formatFeeData(centersData) {
     lines.push(`Address: ${c.Center_Address}`);
     lines.push(`Map: ${c.Center_Map_Address}`);
     lines.push(`Distance: ${c.Calculeted_Radius_Text}`);
-    if (c.Center_Feecard_List) {
-      for (const [prog, plans] of Object.entries(c.Center_Feecard_List)) {
+    const fees = c.Center_Feecard_List;
+    if (fees) {
+      const v1 = fees.V1 || {};
+      const v2 = fees.V2 || {};
+      const programs = new Set([...Object.keys(v1), ...Object.keys(v2)]);
+      for (const prog of programs) {
         const dp = PROGRAM_DISPLAY[prog] || prog;
-        if (plans.V1) {
-          const reg = plans.V1.registration ?? plans.V1.reg ?? '—';
-          lines.push(`  ${dp} — V1 Long Term: ₹${plans.V1.monthly}/month + ₹${plans.V1.annual} annual | Registration ₹${reg}`);
+        if (v1[prog]) {
+          const p = v1[prog];
+          lines.push(`  ${dp} — V1 Long Term: ₹${p.Monthly_Fee}/month + ₹${p.Annual_Fee} annual | Admission ₹${p.Admission_Fee}`);
         }
-        if (plans.V2) {
-          const reg = plans.V2.registration ?? plans.V2.reg ?? '—';
-          lines.push(`  ${dp} — V2 Short Term: ₹${plans.V2.monthly}/month (₹0 annual) | Registration ₹${reg}`);
+        if (v2[prog]) {
+          const p = v2[prog];
+          lines.push(`  ${dp} — V2 Short Term: ₹${p.Monthly_Fee}/month (₹0 annual) | Admission ₹${p.Admission_Fee}`);
         }
       }
     }
@@ -165,8 +177,8 @@ function buildSystemPrompt(state) {
     : !program                             ? "Ask about the program (full-day daycare / pre-school / after school)."
     : !city                                ? "Ask which city they're in."
     : !area                                ? "Ask which area or neighbourhood they're in."
-    : centersData && !state.centersShown   ? "Present the nearby centres naturally. Include fees and distances."
-    : "Answer questions about fees, curriculum, safety, food, or help book a visit.";
+    : centersData && !state.centersShown   ? "Present the nearby centres (name, address, distance only). Do NOT share fees yet — wait for the parent to ask."
+    : "Answer the parent's question. If they haven't asked about fees yet, gently guide toward booking a visit.";
 
   const feeSection = centersData
     ? `\n\n━━━ CENTRES & FEES ━━━\n${formatFeeData(centersData)}`
@@ -186,12 +198,22 @@ Parent: ${parentName || 'not known'} | Child: ${childName || 'not yet asked'} | 
 ━━━ COMMUNICATION RULES ━━━
 • Warm and natural — never say "I am an AI / bot / automated"
 • Never say "Let me fetch / check / look that up" — all data is already in front of you
-• Never create numbered lists for programs (conflicts with concern menu 1/2/3/4)
+• Never create numbered lists for programs (conflicts with concern menu)
 • Never quote ₹ amounts without fee data loaded in this prompt
 • Always use Webpage_Title verbatim — never rename centres
 • Max ~60 words per message segment. Use <MSG_BREAK> to split long replies.
 • Plain text. WhatsApp *bold* sparingly. One question per message.
-• Ask at least one question before pitching Footprints facts.
+• ALWAYS end every reply with the 🎯 NEXT STEP question — no exceptions. Never leave a turn without advancing the conversation.
+• FEES: Never volunteer fee amounts. Only share when the parent explicitly asks about fees or pricing. When sharing fees, you may first share one surprising/delightful fact about Footprints before showing the numbers (e.g. "Before I share the fees — did you know Footprints is one of the only chains in India where parents can watch their child LIVE from their phone?").
+• PRONOUNS: Never use he/she/his/her/him/they/their for the child. Always use the child's name (e.g. "Priyu's program" not "her program").
+• PROACTIVE FACTS: At natural moments (after showing centres, when program is confirmed, after fees), share one interesting Footprints fact or a short video. Keep it brief — one sentence + the link.
+
+━━━ FOOTPRINTS YOUTUBE VIDEOS ━━━
+• Centre tour & daily routine: https://www.youtube.com/watch?v=TOUR_VIDEO_ID
+• HighScope active learning explained: https://www.youtube.com/watch?v=HIGHSCOPE_VIDEO_ID
+• Parent testimonials: https://www.youtube.com/watch?v=TESTIMONIAL_VIDEO_ID
+• Welcome Kit unboxing: https://www.youtube.com/watch?v=WELCOMEKIT_VIDEO_ID
+(Replace placeholder IDs with real video IDs before go-live)
 
 ━━━ FEES FORMAT (when parent asks) ━━━
 Open: "We have two fee plans — Long Term (V1) and Short Term (V2):"
@@ -258,10 +280,41 @@ Rules:
 - area: locality, sector, landmark, or neighbourhood. Accept abbreviations (hsr→HSR Layout, btm→BTM Layout, ecr→ECR). Strip qualifiers: "hsr only"→"HSR Layout".
 - program: "Daycare" (full day/daycare/creche), "Pre-School" (half day/preschool/nursery/lkg/morning), "After School" (evening/after school). Null if unclear.
 - intent: "fee"|"booking"|"concern_menu_answer"|"meta"|"area_query"|"general"
-- concernMenuAnswer: 1-4 if intent is concern_menu_answer, else null.
+- concernMenuAnswer: if intent is concern_menu_answer, return the matching label text exactly as one of: "Curriculum & Active Learning", "Safety & Security", "Food & Nutrition", "Live CCTV & AI Monitoring". Else null.
 - isNegativeResponse: true if refusing/skipping ("i dont want to tell", "skip", "not now", "no idea").
 - extractedAreaFromPhrase: if message contains "how about X"/"what about X"/"near X"/"try X", extract X. Null otherwise.
 - isMetaQuestion: true if asking who/what the bot is ("who are you", "are you a bot", "where are you", "is this automated").`;
+
+async function contextualAsk(message, need, state) {
+  const parentRef = state.parentName ? ` ${state.parentName}` : '';
+  const instruction = need === 'childName'
+    ? `Your ONLY goal this turn: get the child's name. Acknowledge what the parent said briefly, then ask for their child's name.
+If the parent refuses or says they don't want to share — empathise, but explain that you need it to find the right program and nearby centre, and ask again warmly.
+Never say "no worries, take your time" without also re-asking. The question must always be the last sentence.`
+    : `Your ONLY goal this turn: get the child's age. Acknowledge what the parent said briefly, then ask how old ${state.childName} is (e.g. "2 years" or "18 months").
+If the parent refuses or says they don't want to share — empathise, but explain you need the age to suggest the right program, and ask again warmly.
+Never say "no worries, take your time" without also re-asking. The question must always be the last sentence.`;
+  const res = await axios.post(
+    'https://api.anthropic.com/v1/messages',
+    {
+      model:      MODEL,
+      max_tokens: 150,
+      system:     `You are Priya, a warm WhatsApp admissions assistant for Footprints Preschool & Daycare.
+Keep replies concise — this is WhatsApp, 1–2 sentences max. No bullet points. One emoji used naturally.
+${instruction}`,
+      messages:   [{ role: 'user', content: `Parent${parentRef} said: "${message}"` }],
+    },
+    {
+      headers: {
+        'x-api-key':         ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type':      'application/json',
+      },
+      timeout: 10_000,
+    }
+  );
+  return res.data.content[0].text.trim();
+}
 
 async function extractionCall(message, contextStr) {
   const contextLine = contextStr ? `\nConversation context: ${contextStr}` : '';
@@ -487,12 +540,9 @@ async function processMessage(conversationId, waId, message) {
       const reply = await escalate(state, waId, 'name never given');
       return { reply, humanTakeover: true };
     }
-    const asks = [
-      `Hi${state.parentName ? ' ' + state.parentName : ''}! 😊 I'd love to help find the perfect Footprints centre. What's your little one's name?`,
-      `I understand you are not comfortable sharing the name but I would need name to pull details from the system 😊`,
-      `Could you share your child's name so I can personalise this for you?`,
-    ];
-    const reply = asks[state.nameAttempts - 1] ?? asks[asks.length - 1];
+    const reply = state.nameAttempts === 1 && !message.trim()
+      ? `Hi${state.parentName ? ' ' + state.parentName : ''}! 😊 I'd love to help find the perfect Footprints centre. What's your little one's name?`
+      : await contextualAsk(message, 'childName', state);
     console.log('📤 Server bypass — name ask');
     state.history.push({ role: 'user', content: message });
     state.history.push({ role: 'assistant', content: reply });
@@ -510,12 +560,7 @@ async function processMessage(conversationId, waId, message) {
       const reply = await escalate(state, waId, 'age never given');
       return { reply, humanTakeover: true };
     }
-    const asks = [
-      `Lovely name! 😊 How old is ${state.childName}?`,
-      `And how old is ${state.childName}? (e.g. "2 years" or "18 months")`,
-      `Just need ${state.childName}'s age to suggest the right program — how old are they? 😊`,
-    ];
-    const reply = asks[state.ageAttempts - 1] ?? asks[asks.length - 1];
+    const reply = await contextualAsk(message, 'childAge', state);
     console.log('📤 Server bypass — age ask');
     state.history.push({ role: 'user', content: message });
     state.history.push({ role: 'assistant', content: reply });
@@ -540,13 +585,13 @@ async function processMessage(conversationId, waId, message) {
     state.history.push({ role: 'user', content: message });
     state.history.push({ role: 'assistant', content: reply });
     scheduleNudge(state);
-    return { reply, concernMenuMessage };
+    return { reply, concernMenuMessage, concernMenuOptions: CONCERN_OPTIONS };
   }
 
   // ── CONCERN ACK ─────────────────────────────────────────────────────────────
   console.log('\n── SERVER BYPASS CHECK');
   if (state.concernAsked && !state.concern && ext.concernMenuAnswer && !state._concernMenuJustSent) {
-    const key = CONCERN_KEY_MAP[String(ext.concernMenuAnswer)];
+    const key = CONCERN_KEY_MAP[String(ext.concernMenuAnswer).toLowerCase()];
     if (key) {
       state.concern              = key;
       state._concernJustDetected = true;
@@ -571,6 +616,7 @@ async function processMessage(conversationId, waId, message) {
       const centers = await fetchCenters(state.area, state.city);
       console.log(`✅ API returned ${centers.length} centre(s)`);
       if (centers.length > 0) {
+        console.log('🔍 RAW FEE SAMPLE:', JSON.stringify(centers[0].Center_Feecard_List ?? 'MISSING', null, 2));
         state.centersData       = centers;
         state.failedAreaFetches = 0;
       } else {
@@ -677,6 +723,7 @@ app.post('/api/chat', async (req, res) => {
       city:               result.city || state.city,
       humanTakeover:      result.humanTakeover || state.humanTakeover,
       concernMenuMessage: result.concernMenuMessage || null,
+      concernMenuOptions: result.concernMenuOptions || null,
     });
   } catch (err) {
     console.error(err);
