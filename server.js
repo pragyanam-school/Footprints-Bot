@@ -28,11 +28,12 @@ const PORT              = parseInt(process.env.PORT)    || 3000;
 
 if (!ANTHROPIC_API_KEY) console.warn('⚠️  ANTHROPIC_API_KEY not set');
 
-const MODEL          = 'claude-sonnet-4-6';
-const CENTERS_API    = 'https://www.footprintseducation.in//nearest-centers';
-const TIMEOUT_MS     = 20_000;
-const MAX_HISTORY    = 20;
-const NUDGE_DELAY_MS = 2 * 60 * 1000;
+const MODEL              = 'claude-sonnet-4-6';
+const CENTERS_API        = 'https://www.footprintseducation.in//nearest-centers';
+const TIMEOUT_MS         = 20_000;
+const MAX_HISTORY        = 20;
+const NUDGE_DELAY_MS     = 2 * 60 * 1000;
+const MESSAGE_BUFFER_MS  = 2_000;   // debounce window for multi-part WhatsApp messages
 
 // ─── KNOWLEDGE: CONCERN MENU ─────────────────────────────────────────────────
 const CONCERN_OPTIONS = [
@@ -78,6 +79,47 @@ const CONCERN_KEY_MAP = {
 };
 
 
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function toTitleCase(str) {
+  return str.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+const PROGRAM_MIN_MONTHS = { 'Daycare': 9, 'Pre-School': 18, 'After School': 48 };
+
+function parseAgeMonths(ageStr) {
+  if (!ageStr) return null;
+  const s = ageStr.toLowerCase();
+  let total = 0;
+  const yr = s.match(/(\d+(?:\.\d+)?)\s*(?:year|yr)/);
+  const mo = s.match(/(\d+)\s*(?:month|mo\b)/);
+  if (yr) total += Math.round(parseFloat(yr[1]) * 12);
+  if (mo) total += parseInt(mo[1]);
+  return total > 0 ? total : null;
+}
+
+function isProgramEligible(program, childAge) {
+  const minMonths = PROGRAM_MIN_MONTHS[program];
+  if (!minMonths) return true;
+  const ageMonths = parseAgeMonths(childAge);
+  if (ageMonths === null) return true;
+  return ageMonths >= minMonths;
+}
+
+// ─── MESSAGE BUFFER (debounce multi-part WhatsApp messages) ──────────────────
+const messageBuffers = {}; // { [waId]: { parts: string[], timer: Timeout } }
+
+function bufferAndProcess(waId, text, onReady) {
+  if (!messageBuffers[waId]) messageBuffers[waId] = { parts: [], timer: null };
+  const buf = messageBuffers[waId];
+  buf.parts.push(text);
+  if (buf.timer) clearTimeout(buf.timer);
+  buf.timer = setTimeout(() => {
+    const combined = buf.parts.join('\n');
+    delete messageBuffers[waId];
+    onReady(combined);
+  }, MESSAGE_BUFFER_MS);
+}
+
 // ─── STATE ───────────────────────────────────────────────────────────────────
 const conversations = {};
 
@@ -105,8 +147,10 @@ function getState(id) {
       nudgeCount:           0,
       nudgeTimer:           null,
       _pendingNudge:        null,
-      _concernMenuJustSent: false,   // true for one turn after concern menu fires
-      _concernJustDetected: false,   // true for one turn after concern is answered
+      _concernMenuJustSent:      false,   // true for one turn after concern menu fires
+      _concernJustDetected:      false,   // true for one turn after concern is answered
+      _nameConfirmationPending:  null,    // { raw, suggestion } when awaiting spelling confirmation
+      _ineligibleProgram:        null,    // program requested but child is under minimum age
       frustratedCount:      0,       // consecutive frustrated signals (2 → escalate)
       lastIntent:           null,    // previous turn's intent for repeat detection
       sameIntentCount:      0,       // consecutive turns with same intent, no progress
@@ -172,17 +216,19 @@ function formatFeeData(centersData) {
   return lines.join('\n');
 }
 
-// ─── SYSTEM PROMPT (CALL 2) ───────────────────────────────────────────────────
-function buildSystemPrompt(state) {
+// ─── SYSTEM PROMPT (CALL 2) ──────────────────────────────────────────────────
+function buildSystemPrompt(state, nextStepOverride = null) {
   const { childName, childAge, program, city, area, centersData, concern, parentName } = state;
 
-  const nextStep = !childName              ? "Ask for the child's name warmly."
-    : !childAge                            ? "Ask for the child's age warmly."
-    : !program                             ? "Ask about the program (full-day daycare / pre-school / after school)."
-    : !city                                ? "Ask which city they're in."
-    : !area                                ? "Ask which area or neighbourhood they're in."
-    : centersData && !state.centersShown   ? "Present the nearby centres (name, address, distance only). Do NOT share fees yet — wait for the parent to ask."
-    : "Answer the parent's question. If they haven't asked about fees yet, gently guide toward booking a visit.";
+  const nextStep = nextStepOverride || (
+    !childName              ? "Ask for the child's name warmly."
+    : !childAge             ? "Ask for the child's age warmly."
+    : !program              ? "Ask about the program (full-day daycare / pre-school / after school)."
+    : !city                 ? "Ask which city they're in."
+    : !area                 ? "Ask which area or neighbourhood they're in."
+    : centersData && !state.centersShown ? `Present ALL ${centersData.length} nearby centres — every single one, no skipping. One centre per message segment, use MSG_BREAK between each. Show name, address, and distance only. Do NOT share fees yet — wait for the parent to ask.`
+    : "Answer the parent's question. If they haven't asked about fees yet, gently guide toward booking a visit."
+  );
 
   const feeSection = centersData
     ? `\n\n━━━ CENTRES & FEES ━━━\n${formatFeeData(centersData)}`
@@ -191,6 +237,12 @@ function buildSystemPrompt(state) {
   const concernNote = concern
     ? `\n\nACTIVE PARENT CONCERN: "${concern.toUpperCase()}" — weave in relevant details from the knowledge base naturally.`
     : '';
+
+  const ineligibleNote = state._ineligibleProgram ? (() => {
+    const min = PROGRAM_MIN_MONTHS[state._ineligibleProgram];
+    const minStr = min >= 12 ? `${min / 12} years` : `${min} months`;
+    return `\n\n⚠️ AGE GATE: Parent asked about ${state._ineligibleProgram} but ${childName || 'the child'} is ${childAge || 'under age'} — minimum age is ${minStr}. Warmly explain that ${childName || 'your child'} is a little young for that program, mention when ${childName || 'your child'} will be eligible, and suggest Full Day Daycare (available from 9 months) as the best fit right now.`;
+  })() : '';
 
   return `You are Priya, a warm and knowledgeable admissions advisor for Footprints Preschool & Daycare in India. You speak naturally, never robotically.
 
@@ -270,7 +322,7 @@ Confirm with: "✅ Done! Visit confirmed at [Centre], [Day] at [Time]. You'll re
 
 ━━━ VISIT AVAILABILITY ━━━
 ${getISTDateContext()}
-${feeSection}${concernNote}`;
+${feeSection}${concernNote}${ineligibleNote}`;
 }
 
 // ─── EXTRACTION CALL (CALL 1) ─────────────────────────────────────────────────
@@ -278,7 +330,8 @@ const EXTRACTION_SYSTEM = `You are an entity extractor for a preschool admission
 Extract structured data from the parent's message. Respond ONLY with valid JSON, no markdown, no code blocks.
 
 Rules:
-- childName: a proper name only. Null if message is about anything else (program, city, questions).
+- childName: a proper name only, extracted verbatim exactly as the parent typed it — do NOT correct spelling. Null if message is about anything else (program, city, questions).
+- nameCorrectionSuggestion: ONLY if there are wrong/extra/missing letters (e.g. "jhon"→"John", "anushkaa"→"Anushka"). Return null for valid Indian names (mihir, aarav, vihaan) AND for names that are simply written in lowercase ("john"→null, "priya"→null, "arjun"→null). Lowercase-only is NOT a spelling error — do not suggest a correction just because the first letter is lowercase.
 - childAge: as string e.g. "3 years", "18 months". Accept bare number only if context clearly suggests age.
 - city: any Indian city, normalised to title case. Handle variants: bengaluru/blr→Bangalore, noid→Noida, ggn/gurugram→Gurgaon, bombay→Mumbai, madras→Chennai.
 - area: locality, sector, landmark, or neighbourhood. Accept abbreviations (hsr→HSR Layout, btm→BTM Layout, ecr→ECR). Strip qualifiers: "hsr only"→"HSR Layout".
@@ -293,7 +346,8 @@ Rules:
 - isFrustrated: true if clear negative sentiment without abuse ("useless", "not helpful", "wasting my time", "this is bad", "not working", "terrible").
 - isUrgent: true if parent signals strong time urgency ("joining this week", "starting Monday", "very urgent", "asap", "need immediately").
 - isCorporateInquiry: true if asking about multi-enrollment for a company ("corporate creche", "for our employees", "bulk enrollment", "company daycare").
-- hasMultipleChildren: true if parent mentions enrolling more than one child simultaneously.`;
+- hasMultipleChildren: true if parent mentions enrolling more than one child simultaneously.
+- isProgramQuestion: true if the parent is ASKING whether a program exists or what it involves ("do you have half day?", "what is daycare?", "do you offer after school?"). False if the parent is SELECTING or CONFIRMING a program ("I want daycare", "full day please", "we'll go with pre-school").`;
 
 async function contextualAsk(message, need, state) {
   const parentRef = state.parentName ? ` ${state.parentName}` : '';
@@ -360,13 +414,13 @@ async function extractionCall(message, contextStr) {
 }
 
 // ─── RESPONSE CALL (CALL 2) ───────────────────────────────────────────────────
-async function responseCall(state) {
+async function responseCall(state, nextStepOverride = null) {
   const res = await axios.post(
     'https://api.anthropic.com/v1/messages',
     {
       model:      MODEL,
       max_tokens: 1024,
-      system:     buildSystemPrompt(state),
+      system:     buildSystemPrompt(state, nextStepOverride),
       messages:   state.history.slice(-MAX_HISTORY),
     },
     {
@@ -486,6 +540,7 @@ async function processMessage(conversationId, waId, message) {
   // Reset one-turn flags at start of each turn
   state._concernMenuJustSent = false;
   state._concernJustDetected = false;
+  state._ineligibleProgram   = null;
 
   // ── TAKEOVER CHECK ──────────────────────────────────────────────────────────
   console.log('\n── TAKEOVER CHECK');
@@ -585,9 +640,23 @@ async function processMessage(conversationId, waId, message) {
     state.lastIntent = ext.intent || null;
   }
 
-  if (!state.childName && ext.childName && !ext.isNegativeResponse) {
-    state.childName = ext.childName;
-    console.log(`✅ childName: ${state.childName}`);
+  let nameJustStored = false;
+  if (ext.childName && !ext.isNegativeResponse) {
+    if (!state.childName) {
+      state.childName = toTitleCase(ext.childName);
+      nameJustStored = true;
+      console.log(`✅ childName: ${state.childName}`);
+      // Only ask for confirmation if it's a genuine letter change, not just capitalisation
+      if (ext.nameCorrectionSuggestion && toTitleCase(ext.childName) !== ext.nameCorrectionSuggestion) {
+        state._nameConfirmationPending = { raw: ext.childName, suggestion: ext.nameCorrectionSuggestion };
+        console.log(`🔁 nameCorrectionSuggestion: ${ext.nameCorrectionSuggestion}`);
+      }
+    } else if (state._nameConfirmationPending && toTitleCase(ext.childName) !== state.childName) {
+      // Parent confirmed the corrected spelling
+      state.childName = toTitleCase(ext.childName);
+      state._nameConfirmationPending = null;
+      console.log(`✅ childName corrected to: ${state.childName}`);
+    }
   }
 
   if (!state.childAge && ext.childAge && !ext.isNegativeResponse) {
@@ -596,9 +665,16 @@ async function processMessage(conversationId, waId, message) {
   }
 
   if (!state.program && ext.program) {
-    state.program = ext.program;
-    console.log(`✅ program: ${state.program}`);
-    state.sameIntentCount = 0;
+    if (ext.isProgramQuestion) {
+      console.log(`❌ program "${ext.program}" not stored — parent is asking, not selecting`);
+    } else if (isProgramEligible(ext.program, state.childAge)) {
+      state.program = ext.program;
+      console.log(`✅ program: ${state.program}`);
+      state.sameIntentCount = 0;
+    } else {
+      state._ineligibleProgram = ext.program;
+      console.log(`❌ program "${ext.program}" blocked — child age ${state.childAge} below minimum`);
+    }
   }
 
   let cityJustDetected = false;
@@ -618,9 +694,13 @@ async function processMessage(conversationId, waId, message) {
     }
   }
 
-  // Block area detection on the same turn city is first detected
-  if (!state.area && !cityJustDetected && state.city) {
-    const newArea = ext.area || ext.extractedAreaFromPhrase;
+  // Block area only when city just changed AND no area arrived in the same message.
+  // If city + area came together (e.g. "Sector 35 Noida"), store both immediately.
+  // Guard against extraction conflating city name with area (e.g. city=Noida, area=Noida).
+  const incomingArea = (ext.area && ext.area !== ext.city) ? ext.area : ext.extractedAreaFromPhrase;
+  const blockArea = cityJustDetected && !incomingArea;
+  if (!state.area && !blockArea && state.city) {
+    const newArea = incomingArea;
     if (newArea) {
       state.area = newArea;
       console.log(`✅ area: ${state.area}`);
@@ -658,6 +738,16 @@ async function processMessage(conversationId, waId, message) {
       const reply = await escalate(state, waId, 'age never given');
       return { reply, humanTakeover: true };
     }
+    if (nameJustStored && state._nameConfirmationPending) {
+      const { raw, suggestion } = state._nameConfirmationPending;
+      const reply = `Just to make sure I spell it right — is it ${suggestion}, or is it ${raw}? 😊`;
+      console.log('📤 Server bypass — name confirmation');
+      state.history.push({ role: 'user', content: message });
+      state.history.push({ role: 'assistant', content: reply });
+      scheduleNudge(state);
+      return { reply };
+    }
+    state._nameConfirmationPending = null; // parent moved on — accept name as-is
     const reply = await contextualAsk(message, 'childAge', state);
     console.log('📤 Server bypass — age ask');
     state.history.push({ role: 'user', content: message });
@@ -675,12 +765,17 @@ async function processMessage(conversationId, waId, message) {
     state._concernMenuJustSent = true;
     concernMenuMessage          = CONCERN_MENU;
 
-    const labels = { Daycare: 'full-day care', 'Pre-School': 'pre-school', 'After School': 'after school' };
-    const label   = labels[state.program] || state.program;
-    const reply   = `Great — ${label} for ${state.childName} it is! 👍`;
-
-    console.log('📤 Server bypass — concern menu (Call 2 skipped)');
+    console.log('\n── CONCERN MENU — calling Claude for confirmation');
     state.history.push({ role: 'user', content: message });
+    const confirmNextStep = `Confirm ${state.childName}'s program selection in one warm sentence (max 15 words). Do NOT ask about city or anything else — a follow-up message is sent automatically after this.`;
+    let reply;
+    try {
+      reply = await responseCall(state, confirmNextStep);
+    } catch (err) {
+      console.error('⚠️  Concern menu confirmation call failed:', err.message);
+      const labels = { Daycare: 'full-day care', 'Pre-School': 'pre-school', 'After School': 'after school' };
+      reply = `Great — ${labels[state.program] || state.program} for ${state.childName} it is! 👍`;
+    }
     state.history.push({ role: 'assistant', content: reply });
     scheduleNudge(state);
     return { reply, concernMenuMessage, concernMenuOptions: CONCERN_OPTIONS };
@@ -798,16 +893,18 @@ async function processWithTimeout(conversationId, waId, message) {
 
 // ─── ROUTES ──────────────────────────────────────────────────────────────────
 
-// Wati WhatsApp webhook — respond 200 immediately, process async
+// Wati WhatsApp webhook — respond 200 immediately, buffer multi-part messages, process async
 app.post('/webhook/wati', (req, res) => {
   res.sendStatus(200);
   const { waId, senderName, text, type } = req.body;
   if (type !== 'text' || !text) return;
   const state = getState(waId);
   if (!state.parentName && senderName) state.parentName = senderName;
-  processWithTimeout(waId, waId, text)
-    .then(result => sendWatiMessages(waId, result))
-    .catch(console.error);
+  bufferAndProcess(waId, text, (combined) => {
+    processWithTimeout(waId, waId, combined)
+      .then(result => sendWatiMessages(waId, result))
+      .catch(console.error);
+  });
 });
 
 // Test UI
